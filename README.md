@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💒 웨딩 체크리스트
 
-## Getting Started
+결혼 준비에 필요한 항목들을 카테고리별로 정리하고 진행률을 추적할 수 있는 체크리스트 서비스입니다.
 
-First, run the development server:
+## 주요 기능
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **9개 카테고리, 42개 체크 항목** — 예식장, 드레스/예복, 스튜디오, 메이크업, 청첩장, 신혼여행, 예물/예단, 신혼집, 예식 당일
+- **실시간 진행률 추적** — 프로그레스바 + 퍼센트 + 완료 카운트
+- **자동 저장** — localStorage 기반으로 브라우저를 닫아도 체크 상태 유지
+- **반응형 디자인** — 모바일 / 태블릿 / 데스크탑 대응
+- **초기화 기능** — 전체 체크리스트 리셋
+
+## 기술 스택
+
+- [Next.js](https://nextjs.org/) (App Router)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) v4
+- [shadcn/ui](https://ui.shadcn.com/)
+
+## 프로젝트 구조
+
+```
+src/
+├── app/
+│   ├── globals.css             # 로즈골드 테마
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── ui/                     # shadcn/ui 컴포넌트
+│   ├── WeddingChecklist.tsx    # 메인 클라이언트 컴포넌트
+│   ├── ProgressHeader.tsx      # 진행률 헤더
+│   └── CategoryCard.tsx        # 카테고리 카드
+├── hooks/
+│   └── useChecklist.ts         # 체크리스트 상태 관리 훅
+└── lib/
+    ├── data.ts                 # 기본 체크리스트 데이터
+    ├── types.ts                # 타입 정의
+    └── utils.ts                # 유틸리티
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 시작하기
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 의존성 설치
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 개발 서버 실행
+npm run dev
+```
 
-## Learn More
+[http://localhost:3000](http://localhost:3000) 에서 확인할 수 있습니다.
 
-To learn more about Next.js, take a look at the following resources:
+## 빌드
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm start
+```
