@@ -27,13 +27,13 @@
 
 ```
 src/
+├── actions/
+│   ├── auth.ts                     # 로그인/회원가입/로그아웃 Server Actions
+│   └── checklist.ts                # 체크리스트 CRUD Server Actions
 ├── app/
 │   ├── (auth)/
-│   │   ├── actions.ts              # 로그인/회원가입/로그아웃 Server Actions
 │   │   ├── login/page.tsx
 │   │   └── signup/page.tsx
-│   ├── actions/
-│   │   └── checklist.ts            # 체크리스트 CRUD Server Actions
 │   ├── globals.css                 # 로즈골드 테마
 │   ├── layout.tsx
 │   └── page.tsx
@@ -58,24 +58,6 @@ src/
 ```
 
 ## 시작하기
-
-### 환경변수 설정
-
-`.env.local` — Supabase 인증용:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-```
-
-`.env` — Prisma DB 연결용:
-
-```bash
-DATABASE_URL="postgresql://postgres.[ref]:[password]@...pooler.supabase.com:6543/postgres?pgbouncer=true"
-DIRECT_URL="postgresql://postgres.[ref]:[password]@...pooler.supabase.com:5432/postgres"
-```
-
-### 실행
 
 ```bash
 # 의존성 설치
