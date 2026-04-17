@@ -27,6 +27,7 @@ export async function login(formData: FormData): Promise<AuthResult> {
 export async function signup(formData: FormData): Promise<AuthResult> {
   const supabase = await createClient();
 
+  // 이메일 체크 설정 꺼짐 (횟수제한이 너무 적어서 운영에서만 on 처리)
   const { error } = await supabase.auth.signUp({
     email: formData.get("email") as string,
     password: formData.get("password") as string,

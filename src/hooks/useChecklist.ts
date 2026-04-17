@@ -1,39 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useOptimistic, useState, useTransition } from "react";
 import { ChecklistCategory } from "@/lib/types";
-import { DEFAULT_CHECKLIST } from "@/lib/data";
+import {
+  toggleChecklistItem,
+  resetChecklist,
+} from "@/app/actions/checklist";
 
-const STORAGE_KEY = "wedding-checklist";
+/** DB 기반 체크리스트 상태 관리 훅 */
+export function useChecklist(initialCategories: ChecklistCategory[]) {
+  const [categories, setCategories] = useState(initialCategories);
+  const [isPending, startTransition] = useTransition();
 
-/** localStorage에서 체크리스트를 로드/저장하는 커스텀 훅 */
-export function useChecklist() {
-  const [categories, setCategories] = useState<ChecklistCategory[]>([]);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setCategories(JSON.parse(saved));
-      } catch {
-        setCategories(DEFAULT_CHECKLIST);
-      }
-    } else {
-      setCategories(DEFAULT_CHECKLIST);
-    }
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(categories));
-    }
-  }, [categories, mounted]);
-
-  const handleToggle = useCallback((categoryId: string, itemId: string) => {
-    setCategories((prev) =>
-      prev.map((cat) =>
+  const [optimisticCategories, applyOptimistic] = useOptimistic(
+    categories,
+    (
+      state: ChecklistCategory[],
+      { categoryId, itemId }: { categoryId: string; itemId: string }
+    ) =>
+      state.map((cat) =>
         cat.id !== categoryId
           ? cat
           : {
@@ -45,30 +30,62 @@ export function useChecklist() {
               ),
             }
       )
-    );
-  }, []);
+  );
+
+  const handleToggle = useCallback(
+    (categoryId: string, itemId: string) => {
+      startTransition(async () => {
+        applyOptimistic({ categoryId, itemId });
+        await toggleChecklistItem(categoryId, itemId);
+        setCategories((prev) =>
+          prev.map((cat) =>
+            cat.id !== categoryId
+              ? cat
+              : {
+                  ...cat,
+                  items: cat.items.map((item) =>
+                    item.id !== itemId
+                      ? item
+                      : { ...item, checked: !item.checked }
+                  ),
+                }
+          )
+        );
+      });
+    },
+    [startTransition, applyOptimistic]
+  );
 
   const handleReset = useCallback(() => {
-    setCategories(DEFAULT_CHECKLIST);
-  }, []);
+    startTransition(async () => {
+      await resetChecklist();
+      setCategories((prev) =>
+        prev.map((cat) => ({
+          ...cat,
+          items: cat.items.map((item) => ({ ...item, checked: false })),
+        }))
+      );
+    });
+  }, [startTransition]);
 
-  const totalItems = categories.reduce(
+  const totalItems = optimisticCategories.reduce(
     (sum, cat) => sum + cat.items.length,
     0
   );
-  const checkedItems = categories.reduce(
+  const checkedItems = optimisticCategories.reduce(
     (sum, cat) => sum + cat.items.filter((i) => i.checked).length,
     0
   );
-  const progress = totalItems === 0 ? 0 : Math.round((checkedItems / totalItems) * 100);
+  const progress =
+    totalItems === 0 ? 0 : Math.round((checkedItems / totalItems) * 100);
 
   return {
-    categories,
-    mounted,
+    categories: optimisticCategories,
     handleToggle,
     handleReset,
     totalItems,
     checkedItems,
     progress,
+    isPending,
   };
 }

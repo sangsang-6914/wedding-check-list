@@ -25,7 +25,7 @@ export function AuthForm({ mode, action }: AuthFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const isLogin = mode === "login";
+  const isLoginMode = mode === "login";
 
   function handleSubmit(formData: FormData) {
     setError(null);
@@ -43,16 +43,16 @@ export function AuthForm({ mode, action }: AuthFormProps) {
         <CardHeader className="text-center">
           <div className="text-4xl mb-2">💒</div>
           <CardTitle className="text-xl">
-            {isLogin ? "로그인" : "회원가입"}
+            {isLoginMode ? "로그인" : "회원가입"}
           </CardTitle>
           <CardDescription>
-            {isLogin
+            {isLoginMode
               ? "웨딩 체크리스트에 로그인하세요"
               : "새 계정을 만들어 시작하세요"}
           </CardDescription>
         </CardHeader>
         <form action={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 mb-6">
             {error && (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
@@ -81,20 +81,20 @@ export function AuthForm({ mode, action }: AuthFormProps) {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col gap-3">
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button type="submit" className="w-full p-6" disabled={isPending}>
               {isPending
                 ? "처리 중..."
-                : isLogin
+                : isLoginMode
                   ? "로그인"
                   : "회원가입"}
             </Button>
             <p className="text-sm text-muted-foreground">
-              {isLogin ? "계정이 없으신가요? " : "이미 계정이 있으신가요? "}
+              {isLoginMode ? "계정이 없으신가요? " : "이미 계정이 있으신가요? "}
               <Link
-                href={isLogin ? "/signup" : "/login"}
+                href={isLoginMode ? "/signup" : "/login"}
                 className="text-primary underline-offset-4 hover:underline"
               >
-                {isLogin ? "회원가입" : "로그인"}
+                {isLoginMode ? "회원가입" : "로그인"}
               </Link>
             </p>
           </CardFooter>
