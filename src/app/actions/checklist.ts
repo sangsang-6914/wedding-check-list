@@ -21,8 +21,8 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
 
   const checkedItems = await prisma.checklistItem.findMany({
     where: { userId },
-    select: { itemId: true, checked: true },
-  });
+    select: { itemId: true, checked: true }
+  })
 
   const checkedMap = new Map(
     checkedItems.map((item) => [item.itemId, item.checked])
