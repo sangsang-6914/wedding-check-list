@@ -40,26 +40,18 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
 /** 체크리스트 항목의 체크 상태를 토글 */
 export async function toggleChecklistItem(
   categoryId: string,
-  itemId: string
+  itemId: string,
+  newChecked: boolean
 ): Promise<{ checked: boolean }> {
   const userId = await getUserId();
 
-  const existing = await prisma.checklistItem.findUnique({
+  const result = await prisma.checklistItem.upsert({
     where: { userId_itemId: { userId, itemId } },
+    update: { checked: newChecked },
+    create: { userId, categoryId, itemId, checked: newChecked },
   });
 
-  if (existing) {
-    const updated = await prisma.checklistItem.update({
-      where: { userId_itemId: { userId, itemId } },
-      data: { checked: !existing.checked },
-    });
-    return { checked: updated.checked };
-  }
-
-  const created = await prisma.checklistItem.create({
-    data: { userId, categoryId, itemId, checked: true },
-  });
-  return { checked: created.checked };
+  return { checked: result.checked };
 }
 
 /** 유저의 체크리스트를 전체 초기화 */

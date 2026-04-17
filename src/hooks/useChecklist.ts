@@ -34,9 +34,14 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
 
   const handleToggle = useCallback(
     (categoryId: string, itemId: string) => {
+      const currentItem = categories
+        .find((c) => c.id === categoryId)
+        ?.items.find((i) => i.id === itemId);
+      const newChecked = !currentItem?.checked;
+
       startTransition(async () => {
         applyOptimistic({ categoryId, itemId });
-        await toggleChecklistItem(categoryId, itemId);
+        await toggleChecklistItem(categoryId, itemId, newChecked);
         setCategories((prev) =>
           prev.map((cat) =>
             cat.id !== categoryId
@@ -46,14 +51,14 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
                   items: cat.items.map((item) =>
                     item.id !== itemId
                       ? item
-                      : { ...item, checked: !item.checked }
+                      : { ...item, checked: newChecked }
                   ),
                 }
           )
         );
       });
     },
-    [startTransition, applyOptimistic]
+    [startTransition, applyOptimistic, categories]
   );
 
   const handleReset = useCallback(() => {
