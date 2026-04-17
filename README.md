@@ -6,9 +6,11 @@
 
 ## 주요 기능
 
+- **이메일 회원가입 / 로그인** — Supabase Auth 기반 인증
+- **사용자별 데이터 저장** — Prisma + Supabase PostgreSQL로 유저별 체크리스트 관리
 - **9개 카테고리, 42개 체크 항목** — 예식장, 드레스/예복, 스튜디오, 메이크업, 청첩장, 신혼여행, 예물/예단, 신혼집, 예식 당일
 - **실시간 진행률 추적** — 프로그레스바 + 퍼센트 + 완료 카운트
-- **자동 저장** — localStorage 기반으로 브라우저를 닫아도 체크 상태 유지
+- **Optimistic UI** — 체크 시 즉시 반영, 서버와 비동기 동기화
 - **반응형 디자인** — 모바일 / 태블릿 / 데스크탑 대응
 - **초기화 기능** — 전체 체크리스트 리셋
 
@@ -18,33 +20,69 @@
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/) v4
 - [shadcn/ui](https://ui.shadcn.com/)
+- [Supabase](https://supabase.com/) (Auth + PostgreSQL)
+- [Prisma](https://www.prisma.io/) (ORM)
 
 ## 프로젝트 구조
 
 ```
 src/
 ├── app/
-│   ├── globals.css             # 로즈골드 테마
+│   ├── (auth)/
+│   │   ├── actions.ts              # 로그인/회원가입/로그아웃 Server Actions
+│   │   ├── login/page.tsx
+│   │   └── signup/page.tsx
+│   ├── actions/
+│   │   └── checklist.ts            # 체크리스트 CRUD Server Actions
+│   ├── globals.css                 # 로즈골드 테마
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
-│   ├── ui/                     # shadcn/ui 컴포넌트
-│   ├── WeddingChecklist.tsx    # 메인 클라이언트 컴포넌트
-│   ├── ProgressHeader.tsx      # 진행률 헤더
-│   └── CategoryCard.tsx        # 카테고리 카드
+│   ├── ui/                         # shadcn/ui 컴포넌트
+│   ├── AuthForm.tsx                # 로그인/회원가입 공통 폼
+│   ├── CategoryCard.tsx            # 카테고리 카드
+│   ├── ProgressHeader.tsx          # 진행률 헤더
+│   ├── UserNav.tsx                 # 유저 정보 + 로그아웃
+│   └── WeddingChecklist.tsx        # 메인 체크리스트
 ├── hooks/
-│   └── useChecklist.ts         # 체크리스트 상태 관리 훅
+│   └── useChecklist.ts             # 체크리스트 상태 관리 (Optimistic UI)
 └── lib/
-    ├── data.ts                 # 기본 체크리스트 데이터
-    ├── types.ts                # 타입 정의
-    └── utils.ts                # 유틸리티
+    ├── supabase/
+    │   ├── client.ts               # 브라우저용 Supabase 클라이언트
+    │   ├── server.ts               # 서버용 Supabase 클라이언트
+    │   └── middleware.ts           # 세션 갱신 + 인증 가드
+    ├── prisma.ts                   # Prisma 싱글턴 인스턴스
+    ├── data.ts                     # 기본 체크리스트 데이터
+    ├── types.ts                    # 타입 정의
+    └── utils.ts                    # 유틸리티
 ```
 
 ## 시작하기
 
+### 환경변수 설정
+
+`.env.local` — Supabase 인증용:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+```
+
+`.env` — Prisma DB 연결용:
+
+```bash
+DATABASE_URL="postgresql://postgres.[ref]:[password]@...pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.[ref]:[password]@...pooler.supabase.com:5432/postgres"
+```
+
+### 실행
+
 ```bash
 # 의존성 설치
 npm install
+
+# DB 마이그레이션
+npx prisma migrate dev
 
 # 개발 서버 실행
 npm run dev
