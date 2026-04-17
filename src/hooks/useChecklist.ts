@@ -5,7 +5,7 @@ import { ChecklistCategory } from "@/lib/types";
 import {
   toggleChecklistItem,
   resetChecklist,
-} from "@/app/actions/checklist";
+} from "@/actions/checklist";
 
 /** DB 기반 체크리스트 상태 관리 훅 */
 export function useChecklist(initialCategories: ChecklistCategory[]) {

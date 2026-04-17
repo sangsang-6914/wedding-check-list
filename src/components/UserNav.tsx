@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { logout } from "@/app/(auth)/actions";
+import { logout } from "@/actions/auth";
 
 interface UserNavProps {
   email: string;

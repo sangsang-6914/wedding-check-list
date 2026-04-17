@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { type AuthResult } from "@/app/(auth)/actions";
+import { type AuthResult } from "@/actions/auth";
 
 interface AuthFormProps {
   mode: "login" | "signup";

@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getChecklist } from "@/app/actions/checklist";
+import { getChecklist } from "@/actions/checklist";
 import { WeddingChecklist } from "@/components/WeddingChecklist";
 import { UserNav } from "@/components/UserNav";
 
