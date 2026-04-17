@@ -27,7 +27,7 @@ export function ProgressHeader({
   return (
     <div className="text-center space-y-4">
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-        💒 웨딩 체크리스트
+        💒 결혼 준비 체크리스트
       </h1>
       <p className="text-muted-foreground text-sm sm:text-base">
         {getMessage()}

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "💒 웨딩 체크리스트",
+  title: "💒 결혼 준비 체크리스트",
   description: "결혼 준비를 위한 체크리스트 서비스",
 };
 
