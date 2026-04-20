@@ -32,17 +32,18 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
 
   const handleToggle = useCallback(
     (categoryId: string, itemId: string) => {
+      let newChecked = true;
+
       setCategories((prev) => {
         const currentItem = prev
           .find((c) => c.id === categoryId)
           ?.items.find((i) => i.id === itemId);
-        const newChecked = !currentItem?.checked;
-
-        // fire-and-forget: 서버 응답을 기다리지 않음
-        toggleChecklistItem(categoryId, itemId, newChecked);
-
+        newChecked = !currentItem?.checked;
         return updateItemInCategories(prev, categoryId, itemId, newChecked);
       });
+
+      // setState 밖에서 호출하여 UI 블로킹 방지
+      toggleChecklistItem(categoryId, itemId, newChecked);
     },
     []
   );
@@ -54,6 +55,7 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
         items: cat.items.map((item) => ({ ...item, checked: false })),
       }))
     );
+
     resetChecklist();
   }, []);
 
