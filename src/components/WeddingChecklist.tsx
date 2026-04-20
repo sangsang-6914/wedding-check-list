@@ -20,7 +20,6 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
     totalItems,
     checkedItems,
     progress,
-    isPending,
   } = useChecklist(initialCategories);
 
   return (
@@ -48,10 +47,9 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
           variant="outline"
           size="sm"
           onClick={handleReset}
-          disabled={isPending}
           className="text-muted-foreground hover:text-destructive hover:border-destructive"
         >
-          {isPending ? "처리 중..." : "초기화"}
+          초기화
         </Button>
       </div>
     </div>

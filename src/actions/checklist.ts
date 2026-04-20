@@ -5,14 +5,14 @@ import { prisma } from "@/lib/prisma";
 import { DEFAULT_CHECKLIST } from "@/lib/data";
 import { ChecklistCategory } from "@/lib/types";
 
-/** 현재 로그인한 유저 ID를 가져오는 헬퍼 */
+/** 쿠키의 세션에서 유저 ID를 읽는 헬퍼 (미들웨어에서 이미 인증 검증 완료) */
 async function getUserId(): Promise<string> {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-  return user.id;
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) throw new Error("Unauthorized");
+  return session.user.id;
 }
 
 /** DB에서 유저의 체크리스트 상태를 조회하여 카테고리 데이터에 병합 */
