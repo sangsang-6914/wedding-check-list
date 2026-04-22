@@ -4,14 +4,25 @@ import { ChecklistCategory } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { getDueDayMeta } from "@/lib/checklist-dates";
 
 interface CategoryCardProps {
   category: ChecklistCategory;
   onToggle: (categoryId: string, itemId: string) => void;
+  onDueDateChange: (
+    categoryId: string,
+    itemId: string,
+    value: string | null
+  ) => void;
 }
 
 /** 카테고리별 체크리스트 카드 컴포넌트 */
-export function CategoryCard({ category, onToggle }: CategoryCardProps) {
+export function CategoryCard({
+  category,
+  onToggle,
+  onDueDateChange,
+}: CategoryCardProps) {
   const checked = category.items.filter((i) => i.checked).length;
   const total = category.items.length;
   const allDone = checked === total;
@@ -25,40 +36,90 @@ export function CategoryCard({ category, onToggle }: CategoryCardProps) {
       }`}
     >
       <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
-            <span className="text-xl">{category.emoji}</span>
-            {category.title}
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2 min-w-0">
+            <span className="text-xl shrink-0">{category.emoji}</span>
+            <span className="truncate">{category.title}</span>
           </CardTitle>
           <Badge
             variant={allDone ? "default" : "outline"}
-            className="text-xs"
+            className="text-xs shrink-0"
           >
             {checked}/{total}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        {category.items.map((item) => (
-          <label
-            key={item.id}
-            className="flex items-center gap-3 cursor-pointer group"
-          >
-            <Checkbox
-              checked={item.checked}
-              onCheckedChange={() => onToggle(category.id, item.id)}
-            />
-            <span
-              className={`text-sm transition-all duration-200 ${
-                item.checked
-                  ? "line-through text-muted-foreground"
-                  : "group-hover:text-primary"
-              }`}
+        {category.items.map((item) => {
+          const checkId = `check-${category.id}-${item.id}`;
+          const dueInputId = `due-${category.id}-${item.id}`;
+          const dueMeta = item.dueDate ? getDueDayMeta(item.dueDate) : null;
+
+          return (
+            <div
+              key={item.id}
+              className="flex flex-col gap-2 border-b border-border/60 pb-3 last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
             >
-              {item.label}
-            </span>
-          </label>
-        ))}
+              <div className="flex min-w-0 flex-1 items-start gap-3">
+                <Checkbox
+                  id={checkId}
+                  checked={item.checked}
+                  onCheckedChange={() => onToggle(category.id, item.id)}
+                  className="mt-0.5"
+                />
+                <label
+                  htmlFor={checkId}
+                  className={`cursor-pointer text-sm leading-snug ${
+                    item.checked
+                      ? "line-through text-muted-foreground"
+                      : "text-foreground hover:text-primary"
+                  }`}
+                >
+                  {item.label}
+                </label>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pl-7 sm:shrink-0 sm:justify-end sm:pl-0">
+                {dueMeta && (
+                  <Badge
+                    variant={
+                      dueMeta.overdue
+                        ? "destructive"
+                        : dueMeta.soon
+                          ? "secondary"
+                          : "outline"
+                    }
+                    className="text-[10px] sm:text-xs"
+                  >
+                    {dueMeta.text}
+                  </Badge>
+                )}
+                <div className="flex items-center gap-1.5">
+                  <Label
+                    htmlFor={dueInputId}
+                    className="text-muted-foreground text-xs whitespace-nowrap"
+                  >
+                    마감
+                  </Label>
+                  <input
+                    id={dueInputId}
+                    type="date"
+                    value={item.dueDate ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      onDueDateChange(
+                        category.id,
+                        item.id,
+                        v === "" ? null : v
+                      );
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="border-input bg-background text-foreground max-w-[10.5rem] rounded-md border px-1.5 py-1 text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );

@@ -1,6 +1,9 @@
 "use client";
 
-import { useChecklist } from "@/hooks/useChecklist";
+import {
+  useChecklist,
+  type ChecklistSortMode,
+} from "@/hooks/useChecklist";
 import { ProgressHeader } from "./ProgressHeader";
 import { CategoryCard } from "./CategoryCard";
 import { Button } from "@/components/ui/button";
@@ -15,7 +18,10 @@ interface WeddingChecklistProps {
 export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
   const {
     categories,
+    sortMode,
+    setSortMode,
     handleToggle,
+    handleDueDateChange,
     handleReset,
     totalItems,
     checkedItems,
@@ -30,6 +36,26 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
         progress={progress}
       />
 
+      <div className="flex flex-col items-stretch justify-end gap-2 sm:flex-row sm:items-center sm:justify-end">
+        <label
+          htmlFor="checklist-sort"
+          className="text-muted-foreground text-sm whitespace-nowrap"
+        >
+          정렬
+        </label>
+        <select
+          id="checklist-sort"
+          value={sortMode}
+          onChange={(e) =>
+            setSortMode(e.target.value as ChecklistSortMode)
+          }
+          className="border-input bg-background text-foreground h-9 w-full max-w-[220px] rounded-md border px-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:w-auto"
+        >
+          <option value="default">기본 순서</option>
+          <option value="dueSoon">마감일 임박 (카테고리 내)</option>
+        </select>
+      </div>
+
       <Separator />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -38,6 +64,7 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
             key={category.id}
             category={category}
             onToggle={handleToggle}
+            onDueDateChange={handleDueDateChange}
           />
         ))}
       </div>

@@ -1,6 +1,8 @@
-import { ChecklistCategory } from "./types";
+import { ChecklistCategory, ChecklistItem } from "./types";
 
-export const DEFAULT_CHECKLIST: ChecklistCategory[] = [
+type ItemSeed = Omit<ChecklistItem, "dueDate">;
+
+const CHECKLIST_SEED: (Omit<ChecklistCategory, "items"> & { items: ItemSeed[] })[] = [
   {
     id: "venue",
     title: "예식장 & 웨딩홀",
@@ -108,3 +110,10 @@ export const DEFAULT_CHECKLIST: ChecklistCategory[] = [
     ],
   },
 ];
+
+export const DEFAULT_CHECKLIST: ChecklistCategory[] = CHECKLIST_SEED.map(
+  (category) => ({
+    ...category,
+    items: category.items.map((item) => ({ ...item, dueDate: null })),
+  })
+);

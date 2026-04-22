@@ -9,13 +9,14 @@ datasource db {
 }
 
 model ChecklistItem {
-  id         String   @id @default(cuid())
-  userId     String   @map("user_id")
-  categoryId String   @map("category_id")
-  itemId     String   @map("item_id")
-  checked    Boolean  @default(false)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id         String    @id @default(cuid())
+  userId     String    @map("user_id")
+  categoryId String    @map("category_id")
+  itemId     String    @map("item_id")
+  checked    Boolean   @default(false)
+  dueDate    DateTime? @map("due_date") @db.Date
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   @@unique([userId, itemId])
   @@index([userId])
