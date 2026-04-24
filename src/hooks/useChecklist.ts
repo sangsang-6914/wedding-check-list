@@ -82,6 +82,23 @@ function filterCategory(
   return { ...cat, items: filtered };
 }
 
+/** 체크리스트를 마크다운 문자열로 변환 (클립보드 내보내기용) */
+export function generateMarkdown(categories: ChecklistCategory[]): string {
+  const blocks: string[] = [];
+  for (const cat of categories) {
+    const itemLines = cat.items.map((item) => {
+      const mark = item.checked ? "[x]" : "[ ]";
+      let line = `- ${mark} ${item.label}`;
+      if (item.dueDate) {
+        line += ` (마감: ${item.dueDate})`;
+      }
+      return line;
+    });
+    blocks.push(`## ${cat.emoji} ${cat.title}\n\n${itemLines.join("\n")}`);
+  }
+  return blocks.join("\n\n");
+}
+
 /** DB 기반 체크리스트 상태 관리 훅 */
 export function useChecklist(initialCategories: ChecklistCategory[]) {
   const [baseCategories, setBaseCategories] = useState(initialCategories);
@@ -162,6 +179,7 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
 
   return {
     categories,
+    baseCategories,
     sortMode,
     setSortMode,
     searchQuery,

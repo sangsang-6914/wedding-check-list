@@ -1,11 +1,13 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import {
   useChecklist,
+  generateMarkdown,
   type ChecklistSortMode,
   type ChecklistFilterMode,
 } from "@/hooks/useChecklist";
-import { Search } from "lucide-react";
+import { Copy, Search } from "lucide-react";
 import { ProgressHeader } from "./ProgressHeader";
 import { CategoryCard } from "./CategoryCard";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,7 @@ interface WeddingChecklistProps {
 export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
   const {
     categories,
+    baseCategories,
     sortMode,
     setSortMode,
     searchQuery,
@@ -33,6 +36,15 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
     checkedItems,
     progress,
   } = useChecklist(initialCategories);
+
+  const [exportLabel, setExportLabel] = useState("내보내기");
+
+  const handleExport = useCallback(async () => {
+    const md = generateMarkdown(baseCategories);
+    await navigator.clipboard.writeText(md);
+    setExportLabel("복사됨!");
+    window.setTimeout(() => setExportLabel("내보내기"), 2000);
+  }, [baseCategories]);
 
   return (
     <div className="space-y-8">
@@ -120,7 +132,16 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
         </div>
       )}
 
-      <div className="flex justify-center pt-4 pb-8">
+      <div className="flex flex-wrap justify-center gap-2 pt-4 pb-8">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          className="text-muted-foreground"
+        >
+          <Copy />
+          {exportLabel}
+        </Button>
         <Button
           variant="outline"
           size="sm"
