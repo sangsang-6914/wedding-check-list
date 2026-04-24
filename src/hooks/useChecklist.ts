@@ -10,6 +10,7 @@ import {
 } from "@/actions/checklist";
 
 export type ChecklistSortMode = "default" | "dueSoon";
+export type ChecklistFilterMode = "all" | "done" | "undone" | "hasDueDate";
 
 /** 카테고리 목록에서 특정 아이템의 checked 값을 변경하는 헬퍼 */
 function updateItemInCategories(
@@ -63,15 +64,38 @@ function sortItemsInCategory(
   };
 }
 
+/** 필터 조건에 맞는 항목만 남기기 (빈 카테고리는 숨김) */
+function filterCategory(
+  cat: ChecklistCategory,
+  query: string,
+  filter: ChecklistFilterMode
+): ChecklistCategory | null {
+  const q = query.trim().toLowerCase();
+  const filtered = cat.items.filter((item) => {
+    if (q && !item.label.toLowerCase().includes(q)) return false;
+    if (filter === "done" && !item.checked) return false;
+    if (filter === "undone" && item.checked) return false;
+    if (filter === "hasDueDate" && !item.dueDate) return false;
+    return true;
+  });
+  if (filtered.length === 0) return null;
+  return { ...cat, items: filtered };
+}
+
 /** DB 기반 체크리스트 상태 관리 훅 */
 export function useChecklist(initialCategories: ChecklistCategory[]) {
   const [baseCategories, setBaseCategories] = useState(initialCategories);
   const [sortMode, setSortMode] = useState<ChecklistSortMode>("default");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterMode, setFilterMode] = useState<ChecklistFilterMode>("all");
 
-  const categories = useMemo(
-    () => baseCategories.map((c) => sortItemsInCategory(c, sortMode)),
-    [baseCategories, sortMode]
-  );
+  const categories = useMemo(() => {
+    const sorted = baseCategories.map((c) => sortItemsInCategory(c, sortMode));
+    if (!searchQuery.trim() && filterMode === "all") return sorted;
+    return sorted
+      .map((c) => filterCategory(c, searchQuery, filterMode))
+      .filter((c): c is ChecklistCategory => c !== null);
+  }, [baseCategories, sortMode, searchQuery, filterMode]);
 
   const handleToggle = useCallback(
     (categoryId: string, itemId: string) => {
@@ -140,6 +164,10 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
     categories,
     sortMode,
     setSortMode,
+    searchQuery,
+    setSearchQuery,
+    filterMode,
+    setFilterMode,
     handleToggle,
     handleDueDateChange,
     handleReset,

@@ -3,7 +3,9 @@
 import {
   useChecklist,
   type ChecklistSortMode,
+  type ChecklistFilterMode,
 } from "@/hooks/useChecklist";
+import { Search } from "lucide-react";
 import { ProgressHeader } from "./ProgressHeader";
 import { CategoryCard } from "./CategoryCard";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,10 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
     categories,
     sortMode,
     setSortMode,
+    searchQuery,
+    setSearchQuery,
+    filterMode,
+    setFilterMode,
     handleToggle,
     handleDueDateChange,
     handleReset,
@@ -36,38 +42,83 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
         progress={progress}
       />
 
-      <div className="flex flex-col items-stretch justify-end gap-2 sm:flex-row sm:items-center sm:justify-end">
-        <label
-          htmlFor="checklist-sort"
-          className="text-muted-foreground text-sm whitespace-nowrap"
-        >
-          정렬
-        </label>
-        <select
-          id="checklist-sort"
-          value={sortMode}
-          onChange={(e) =>
-            setSortMode(e.target.value as ChecklistSortMode)
-          }
-          className="border-input bg-background text-foreground h-9 w-full max-w-[220px] rounded-md border px-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:w-auto"
-        >
-          <option value="default">기본 순서</option>
-          <option value="dueSoon">마감일 임박 (카테고리 내)</option>
-        </select>
+      <div className="flex flex-col gap-3">
+        {/* 검색 */}
+        <div className="relative">
+          <Search className="text-muted-foreground pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="항목 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="border-input bg-background text-foreground placeholder:text-muted-foreground h-9 w-full rounded-md border pl-9 pr-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          />
+        </div>
+
+        {/* 필터 + 정렬 */}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="checklist-filter"
+              className="text-muted-foreground text-sm whitespace-nowrap"
+            >
+              필터
+            </label>
+            <select
+              id="checklist-filter"
+              value={filterMode}
+              onChange={(e) =>
+                setFilterMode(e.target.value as ChecklistFilterMode)
+              }
+              className="border-input bg-background text-foreground h-9 w-full max-w-[180px] rounded-md border px-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:w-auto"
+            >
+              <option value="all">전체</option>
+              <option value="done">완료</option>
+              <option value="undone">미완료</option>
+              <option value="hasDueDate">마감일 있음</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <label
+              htmlFor="checklist-sort"
+              className="text-muted-foreground text-sm whitespace-nowrap"
+            >
+              정렬
+            </label>
+            <select
+              id="checklist-sort"
+              value={sortMode}
+              onChange={(e) =>
+                setSortMode(e.target.value as ChecklistSortMode)
+              }
+              className="border-input bg-background text-foreground h-9 w-full max-w-[220px] rounded-md border px-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 sm:w-auto"
+            >
+              <option value="default">기본 순서</option>
+              <option value="dueSoon">마감일 임박 (카테고리 내)</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <Separator />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {categories.map((category) => (
-          <CategoryCard
-            key={category.id}
-            category={category}
-            onToggle={handleToggle}
-            onDueDateChange={handleDueDateChange}
-          />
-        ))}
-      </div>
+      {categories.length === 0 ? (
+        <p className="text-muted-foreground py-12 text-center text-sm">
+          조건에 맞는 항목이 없습니다.
+        </p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {categories.map((category) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              onToggle={handleToggle}
+              onDueDateChange={handleDueDateChange}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="flex justify-center pt-4 pb-8">
         <Button
