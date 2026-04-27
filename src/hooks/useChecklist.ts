@@ -7,6 +7,7 @@ import {
   toggleChecklistItem,
   resetChecklist,
   setChecklistItemDueDate,
+  setChecklistItemMemo,
 } from "@/actions/checklist";
 
 export type ChecklistSortMode = "default" | "dueSoon";
@@ -26,6 +27,25 @@ function updateItemInCategories(
           ...cat,
           items: cat.items.map((item) =>
             item.id !== itemId ? item : { ...item, checked }
+          ),
+        }
+  );
+}
+
+/** 특정 항목의 메모만 갱신 */
+function updateItemMemo(
+  categories: ChecklistCategory[],
+  categoryId: string,
+  itemId: string,
+  memo: string
+): ChecklistCategory[] {
+  return categories.map((cat) =>
+    cat.id !== categoryId
+      ? cat
+      : {
+          ...cat,
+          items: cat.items.map((item) =>
+            item.id !== itemId ? item : { ...item, memo }
           ),
         }
   );
@@ -72,7 +92,12 @@ function filterCategory(
 ): ChecklistCategory | null {
   const q = query.trim().toLowerCase();
   const filtered = cat.items.filter((item) => {
-    if (q && !item.label.toLowerCase().includes(q)) return false;
+    if (
+      q &&
+      !item.label.toLowerCase().includes(q) &&
+      !item.memo.toLowerCase().includes(q)
+    )
+      return false;
     if (filter === "done" && !item.checked) return false;
     if (filter === "undone" && item.checked) return false;
     if (filter === "hasDueDate" && !item.dueDate) return false;
@@ -91,6 +116,9 @@ export function generateMarkdown(categories: ChecklistCategory[]): string {
       let line = `- ${mark} ${item.label}`;
       if (item.dueDate) {
         line += ` (마감: ${item.dueDate})`;
+      }
+      if (item.memo) {
+        line += `\n  > ${item.memo}`;
       }
       return line;
     });
@@ -151,6 +179,22 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
     []
   );
 
+  const handleMemoChange = useCallback(
+    (categoryId: string, itemId: string, value: string) => {
+      setBaseCategories((prev) =>
+        updateItemMemo(prev, categoryId, itemId, value)
+      );
+    },
+    []
+  );
+
+  const handleMemoBlur = useCallback(
+    (categoryId: string, itemId: string, value: string) => {
+      void setChecklistItemMemo(categoryId, itemId, value);
+    },
+    []
+  );
+
   const handleReset = useCallback(() => {
     setBaseCategories((prev) =>
       prev.map((cat) => ({
@@ -159,6 +203,7 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
           ...item,
           checked: false,
           dueDate: null,
+          memo: "",
         })),
       }))
     );
@@ -188,6 +233,8 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
     setFilterMode,
     handleToggle,
     handleDueDateChange,
+    handleMemoChange,
+    handleMemoBlur,
     handleReset,
     totalItems,
     checkedItems,

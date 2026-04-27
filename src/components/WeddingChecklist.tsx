@@ -31,6 +31,8 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
     setFilterMode,
     handleToggle,
     handleDueDateChange,
+    handleMemoChange,
+    handleMemoBlur,
     handleReset,
     totalItems,
     checkedItems,
@@ -127,6 +129,8 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
               category={category}
               onToggle={handleToggle}
               onDueDateChange={handleDueDateChange}
+              onMemoChange={handleMemoChange}
+              onMemoBlur={handleMemoBlur}
             />
           ))}
         </div>

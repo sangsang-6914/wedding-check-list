@@ -26,7 +26,7 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
 
   const rows = await prisma.checklistItem.findMany({
     where: { userId },
-    select: { itemId: true, checked: true, dueDate: true },
+    select: { itemId: true, checked: true, dueDate: true, memo: true },
   });
 
   const stateMap = new Map(
@@ -35,6 +35,7 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
       {
         checked: row.checked,
         dueDate: row.dueDate ? prismaDateToIsoDate(row.dueDate) : null,
+        memo: row.memo ?? "",
       },
     ])
   );
@@ -47,6 +48,7 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
         ...item,
         checked: saved?.checked ?? false,
         dueDate: saved?.dueDate ?? null,
+        memo: saved?.memo ?? "",
       };
     }),
   }));
@@ -101,6 +103,23 @@ export async function setChecklistItemDueDate(
   return {
     dueDate: result.dueDate ? prismaDateToIsoDate(result.dueDate) : null,
   };
+}
+
+/** 항목 메모 저장 */
+export async function setChecklistItemMemo(
+  categoryId: string,
+  itemId: string,
+  memo: string
+): Promise<{ memo: string }> {
+  const userId = await getUserId();
+
+  const result = await prisma.checklistItem.upsert({
+    where: { userId_itemId: { userId, itemId } },
+    update: { memo, categoryId },
+    create: { userId, categoryId, itemId, checked: false, memo },
+  });
+
+  return { memo: result.memo ?? "" };
 }
 
 /** 유저의 체크리스트를 전체 초기화 */

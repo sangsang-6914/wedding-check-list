@@ -1,6 +1,6 @@
 import { ChecklistCategory, ChecklistItem } from "./types";
 
-type ItemSeed = Omit<ChecklistItem, "dueDate">;
+type ItemSeed = Omit<ChecklistItem, "dueDate" | "memo">;
 
 const CHECKLIST_SEED: (Omit<ChecklistCategory, "items"> & { items: ItemSeed[] })[] = [
   {
@@ -114,6 +114,6 @@ const CHECKLIST_SEED: (Omit<ChecklistCategory, "items"> & { items: ItemSeed[] })
 export const DEFAULT_CHECKLIST: ChecklistCategory[] = CHECKLIST_SEED.map(
   (category) => ({
     ...category,
-    items: category.items.map((item) => ({ ...item, dueDate: null })),
+    items: category.items.map((item) => ({ ...item, dueDate: null, memo: "" })),
   })
 );
