@@ -15,6 +15,7 @@ model ChecklistItem {
   itemId     String    @map("item_id")
   checked    Boolean   @default(false)
   dueDate    DateTime? @map("due_date") @db.Date
+  memo       String?   @default("") @map("memo")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 
