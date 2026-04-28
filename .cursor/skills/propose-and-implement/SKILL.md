@@ -17,6 +17,7 @@ Task Progress:
 - [ ] Step 3: 선택된 기능 구현
 - [ ] Step 4: 빌드 검증
 - [ ] Step 5: 커밋 분리 및 푸시
+- [ ] Step 6: Readme파일 업데이트
 ```
 
 ---
