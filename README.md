@@ -63,52 +63,66 @@
 - **이메일 회원가입 / 로그인** — Supabase Auth 기반 인증
 - **사용자별 데이터 저장** — Prisma + Supabase PostgreSQL로 유저별 체크리스트 관리
 - **9개 카테고리, 42개 체크 항목** — 예식장, 드레스/예복, 스튜디오, 메이크업, 청첩장, 신혼여행, 예물/예단, 신혼집, 예식 당일
-- **실시간 진행률 추적** — 프로그레스바 + 퍼센트 + 완료 카운트
-- **Optimistic UI** — 체크 시 즉시 반영, 서버와 비동기 동기화
-- **반응형 디자인** — 모바일 / 태블릿 / 데스크탑 대응
-- **초기화 기능** — 전체 체크리스트 리셋
+- **실시간 진행률 추적** — 프로그레스바 + 퍼센트 + 완료 카운트 + 구간별 응원 메시지
+- **Optimistic UI** — 체크·메모·마감일 변경 시 즉시 반영, 서버와 비동기 동기화
+- **항목별 마감일 설정** — 날짜 선택으로 마감일 지정, D-day 배지(지남·오늘·D-N) 자동 표시
+- **항목별 메모** — 업체명·가격·연락처 등 자유 메모를 DB에 저장·표시 (접기/펼치기 토글)
+- **검색** — 항목명·메모 텍스트로 실시간 필터링
+- **필터** — 전체 / 완료 / 미완료 / 마감일 있음
+- **정렬** — 기본 순서 / 마감일 임박순 (카테고리 내)
+- **카테고리 순서 변경** — 드래그 앤 드롭으로 카드 순서를 재배치, 사용자별 DB 저장
+- **마크다운 내보내기** — 전체 체크리스트를 마크다운으로 클립보드에 복사 (메모·마감일 포함)
+- **다크 모드** — 시스템 설정 연동 + 수동 토글, 로즈골드 다크 팔레트
+- **반응형 디자인** — 모바일 / 태블릿 / 데스크탑 대응 (1 / 2 / 3 컬럼 그리드)
+- **초기화 기능** — 전체 체크리스트 리셋 (체크·마감일·메모 일괄 삭제)
 
 ## 기술 스택 (요약)
 
-- [Next.js](https://nextjs.org/) (App Router)
+- [Next.js](https://nextjs.org/) (App Router + Server Actions)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/) v4
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Supabase](https://supabase.com/) (Auth + PostgreSQL)
 - [Prisma](https://www.prisma.io/) (ORM)
+- [next-themes](https://github.com/pacocoursey/next-themes) (다크 모드)
+- [@dnd-kit](https://dndkit.com/) (드래그 앤 드롭)
 
 ## 프로젝트 구조
 
 ```
 src/
 ├── actions/
-│   ├── auth.ts                     # 로그인/회원가입/로그아웃 Server Actions
-│   └── checklist.ts                # 체크리스트 CRUD Server Actions
+│   ├── auth.ts                        # 로그인/회원가입/로그아웃 Server Actions
+│   └── checklist.ts                   # 체크리스트 CRUD + 카테고리 순서 Server Actions
 ├── app/
 │   ├── (auth)/
 │   │   ├── login/page.tsx
 │   │   └── signup/page.tsx
-│   ├── globals.css                 # 로즈골드 테마
+│   ├── globals.css                    # 로즈골드 라이트/다크 테마
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
-│   ├── ui/                         # shadcn/ui 컴포넌트
-│   ├── AuthForm.tsx                # 로그인/회원가입 공통 폼
-│   ├── CategoryCard.tsx            # 카테고리 카드
-│   ├── ProgressHeader.tsx          # 진행률 헤더
-│   ├── UserNav.tsx                 # 유저 정보 + 로그아웃
-│   └── WeddingChecklist.tsx        # 메인 체크리스트
+│   ├── ui/                            # shadcn/ui 컴포넌트
+│   ├── AuthForm.tsx                   # 로그인/회원가입 공통 폼
+│   ├── CategoryCard.tsx               # 카테고리 카드 (메모·마감일·D-day 배지)
+│   ├── ProgressHeader.tsx             # 진행률 헤더
+│   ├── SortableCategoryGrid.tsx       # 드래그 앤 드롭 카테고리 그리드
+│   ├── UserNav.tsx                    # 유저 정보 + 로그아웃
+│   ├── WeddingChecklist.tsx           # 메인 체크리스트 (검색·필터·정렬·내보내기)
+│   ├── theme-provider.tsx             # next-themes 프로바이더
+│   └── theme-toggle.tsx               # 다크/라이트 모드 토글
 ├── hooks/
-│   └── useChecklist.ts             # 체크리스트 상태 관리 (Optimistic UI)
+│   └── useChecklist.ts                # 체크리스트 상태 관리 (Optimistic UI)
 └── lib/
     ├── supabase/
-    │   ├── client.ts               # 브라우저용 Supabase 클라이언트
-    │   ├── server.ts               # 서버용 Supabase 클라이언트
-    │   └── middleware.ts           # 세션 갱신 + 인증 가드
-    ├── prisma.ts                   # Prisma 싱글턴 인스턴스
-    ├── data.ts                     # 기본 체크리스트 데이터
-    ├── types.ts                    # 타입 정의
-    └── utils.ts                    # 유틸리티
+    │   ├── client.ts                  # 브라우저용 Supabase 클라이언트
+    │   ├── server.ts                  # 서버용 Supabase 클라이언트
+    │   └── middleware.ts              # 세션 갱신 + 인증 가드
+    ├── checklist-dates.ts             # 마감일 유틸 (D-day 계산·비교·변환)
+    ├── prisma.ts                      # Prisma 싱글턴 인스턴스
+    ├── data.ts                        # 기본 체크리스트 데이터
+    ├── types.ts                       # 타입 정의
+    └── utils.ts                       # 유틸리티
 ```
 
 ## 시작하기
