@@ -8,6 +8,7 @@ import {
   resetChecklist,
   setChecklistItemDueDate,
   setChecklistItemMemo,
+  saveCategoryOrder,
 } from "@/actions/checklist";
 
 export type ChecklistSortMode = "default" | "dueSoon";
@@ -127,9 +128,33 @@ export function generateMarkdown(categories: ChecklistCategory[]): string {
   return blocks.join("\n\n");
 }
 
+/** 카테고리 순서를 적용해 배열 재정렬 */
+function applyCategoryOrder(
+  categories: ChecklistCategory[],
+  order: string[]
+): ChecklistCategory[] {
+  if (order.length === 0) return categories;
+  const map = new Map(categories.map((c) => [c.id, c]));
+  const ordered: ChecklistCategory[] = [];
+  for (const id of order) {
+    const cat = map.get(id);
+    if (cat) {
+      ordered.push(cat);
+      map.delete(id);
+    }
+  }
+  for (const cat of map.values()) ordered.push(cat);
+  return ordered;
+}
+
 /** DB 기반 체크리스트 상태 관리 훅 */
-export function useChecklist(initialCategories: ChecklistCategory[]) {
-  const [baseCategories, setBaseCategories] = useState(initialCategories);
+export function useChecklist(
+  initialCategories: ChecklistCategory[],
+  initialCategoryOrder: string[] = []
+) {
+  const [baseCategories, setBaseCategories] = useState(() =>
+    applyCategoryOrder(initialCategories, initialCategoryOrder)
+  );
   const [sortMode, setSortMode] = useState<ChecklistSortMode>("default");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterMode, setFilterMode] = useState<ChecklistFilterMode>("all");
@@ -195,6 +220,11 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
     []
   );
 
+  const handleReorder = useCallback((newOrder: string[]) => {
+    setBaseCategories((prev) => applyCategoryOrder(prev, newOrder));
+    void saveCategoryOrder(newOrder);
+  }, []);
+
   const handleReset = useCallback(() => {
     setBaseCategories((prev) =>
       prev.map((cat) => ({
@@ -235,6 +265,7 @@ export function useChecklist(initialCategories: ChecklistCategory[]) {
     handleDueDateChange,
     handleMemoChange,
     handleMemoBlur,
+    handleReorder,
     handleReset,
     totalItems,
     checkedItems,

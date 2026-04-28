@@ -19,6 +19,7 @@ interface CategoryCardProps {
   ) => void;
   onMemoChange: (categoryId: string, itemId: string, value: string) => void;
   onMemoBlur: (categoryId: string, itemId: string, value: string) => void;
+  dragHandle?: React.ReactNode;
 }
 
 /** 카테고리별 체크리스트 카드 컴포넌트 */
@@ -28,6 +29,7 @@ export function CategoryCard({
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
+  dragHandle,
 }: CategoryCardProps) {
   const [openMemos, setOpenMemos] = useState<Set<string>>(
     () => new Set(category.items.filter((i) => i.memo).map((i) => i.id))
@@ -47,6 +49,7 @@ export function CategoryCard({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-base sm:text-lg flex items-center gap-2 min-w-0">
+            {dragHandle}
             <span className="text-xl shrink-0">{category.emoji}</span>
             <span className="truncate">{category.title}</span>
           </CardTitle>

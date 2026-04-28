@@ -122,6 +122,29 @@ export async function setChecklistItemMemo(
   return { memo: result.memo ?? "" };
 }
 
+/** 유저의 카테고리 순서 조회 (빈 배열이면 기본 순서) */
+export async function getCategoryOrder(): Promise<string[]> {
+  const userId = await getUserId();
+
+  const pref = await prisma.userPreference.findUnique({
+    where: { userId },
+    select: { categoryOrder: true },
+  });
+
+  return pref?.categoryOrder ?? [];
+}
+
+/** 유저의 카테고리 순서 저장 */
+export async function saveCategoryOrder(order: string[]): Promise<void> {
+  const userId = await getUserId();
+
+  await prisma.userPreference.upsert({
+    where: { userId },
+    update: { categoryOrder: order },
+    create: { userId, categoryOrder: order },
+  });
+}
+
 /** 유저의 체크리스트를 전체 초기화 */
 export async function resetChecklist(): Promise<void> {
   const userId = await getUserId();

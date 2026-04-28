@@ -9,17 +9,21 @@ import {
 } from "@/hooks/useChecklist";
 import { Copy, Search } from "lucide-react";
 import { ProgressHeader } from "./ProgressHeader";
-import { CategoryCard } from "./CategoryCard";
+import { SortableCategoryGrid } from "./SortableCategoryGrid";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ChecklistCategory } from "@/lib/types";
 
 interface WeddingChecklistProps {
   initialCategories: ChecklistCategory[];
+  initialCategoryOrder?: string[];
 }
 
 /** 웨딩 체크리스트 메인 클라이언트 컴포넌트 */
-export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
+export function WeddingChecklist({
+  initialCategories,
+  initialCategoryOrder = [],
+}: WeddingChecklistProps) {
   const {
     categories,
     baseCategories,
@@ -33,11 +37,12 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
     handleDueDateChange,
     handleMemoChange,
     handleMemoBlur,
+    handleReorder,
     handleReset,
     totalItems,
     checkedItems,
     progress,
-  } = useChecklist(initialCategories);
+  } = useChecklist(initialCategories, initialCategoryOrder);
 
   const [exportLabel, setExportLabel] = useState("내보내기");
 
@@ -122,18 +127,14 @@ export function WeddingChecklist({ initialCategories }: WeddingChecklistProps) {
           조건에 맞는 항목이 없습니다.
         </p>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map((category) => (
-            <CategoryCard
-              key={category.id}
-              category={category}
-              onToggle={handleToggle}
-              onDueDateChange={handleDueDateChange}
-              onMemoChange={handleMemoChange}
-              onMemoBlur={handleMemoBlur}
-            />
-          ))}
-        </div>
+        <SortableCategoryGrid
+          categories={categories}
+          onToggle={handleToggle}
+          onDueDateChange={handleDueDateChange}
+          onMemoChange={handleMemoChange}
+          onMemoBlur={handleMemoBlur}
+          onReorder={handleReorder}
+        />
       )}
 
       <div className="flex flex-wrap justify-center gap-2 pt-4 pb-8">

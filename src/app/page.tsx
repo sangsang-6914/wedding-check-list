@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { getChecklist } from "@/actions/checklist";
+import { getChecklist, getCategoryOrder } from "@/actions/checklist";
 import { WeddingChecklist } from "@/components/WeddingChecklist";
 import { UserNav } from "@/components/UserNav";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -10,7 +10,10 @@ export default async function Home() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const categories = await getChecklist();
+  const [categories, categoryOrder] = await Promise.all([
+    getChecklist(),
+    getCategoryOrder(),
+  ]);
 
   return (
     <main className="min-h-screen bg-background">
@@ -19,7 +22,10 @@ export default async function Home() {
           {user && <UserNav email={user.email ?? ""} />}
           <ThemeToggle />
         </div>
-        <WeddingChecklist initialCategories={categories} />
+        <WeddingChecklist
+          initialCategories={categories}
+          initialCategoryOrder={categoryOrder}
+        />
       </div>
     </main>
   );
