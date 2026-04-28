@@ -8,6 +8,16 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model UserPreference {
+  id            String   @id @default(cuid())
+  userId        String   @unique @map("user_id")
+  categoryOrder String[] @default([]) @map("category_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("user_preferences")
+}
+
 model ChecklistItem {
   id         String    @id @default(cuid())
   userId     String    @map("user_id")
