@@ -7,7 +7,7 @@ import {
   type ChecklistSortMode,
   type ChecklistFilterMode,
 } from "@/hooks/useChecklist";
-import { Copy, Search } from "lucide-react";
+import { ChevronsDownUp, ChevronsUpDown, Copy, Search } from "lucide-react";
 import { ProgressHeader } from "./ProgressHeader";
 import { SortableCategoryGrid } from "./SortableCategoryGrid";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,30 @@ export function WeddingChecklist({
   } = useChecklist(initialCategories, initialCategoryOrder);
 
   const [exportLabel, setExportLabel] = useState("내보내기");
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    new Set()
+  );
+
+  const handleToggleCollapse = useCallback((categoryId: string) => {
+    setCollapsedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(categoryId)) next.delete(categoryId);
+      else next.add(categoryId);
+      return next;
+    });
+  }, []);
+
+  const allCollapsed =
+    categories.length > 0 &&
+    collapsedCategories.size >= categories.length;
+
+  const handleToggleAll = useCallback(() => {
+    if (allCollapsed) {
+      setCollapsedCategories(new Set());
+    } else {
+      setCollapsedCategories(new Set(categories.map((c) => c.id)));
+    }
+  }, [allCollapsed, categories]);
 
   const handleExport = useCallback(async () => {
     const md = generateMarkdown(baseCategories);
@@ -74,7 +98,7 @@ export function WeddingChecklist({
           />
         </div>
 
-        {/* 필터 + 정렬 */}
+        {/* 필터 + 정렬 + 접기/펼치기 */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
           <div className="flex items-center gap-2">
             <label
@@ -117,6 +141,20 @@ export function WeddingChecklist({
               <option value="dueSoon">마감일 임박 (카테고리 내)</option>
             </select>
           </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleToggleAll}
+            className="text-muted-foreground h-9 gap-1"
+          >
+            {allCollapsed ? (
+              <ChevronsUpDown className="size-4" />
+            ) : (
+              <ChevronsDownUp className="size-4" />
+            )}
+            {allCollapsed ? "모두 펼치기" : "모두 접기"}
+          </Button>
         </div>
       </div>
 
@@ -129,11 +167,13 @@ export function WeddingChecklist({
       ) : (
         <SortableCategoryGrid
           categories={categories}
+          collapsedCategories={collapsedCategories}
           onToggle={handleToggle}
           onDueDateChange={handleDueDateChange}
           onMemoChange={handleMemoChange}
           onMemoBlur={handleMemoBlur}
           onReorder={handleReorder}
+          onToggleCollapse={handleToggleCollapse}
         />
       )}
 

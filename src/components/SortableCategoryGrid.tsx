@@ -23,6 +23,7 @@ import { GripVertical } from "lucide-react";
 
 interface SortableCategoryGridProps {
   categories: ChecklistCategory[];
+  collapsedCategories: Set<string>;
   onToggle: (categoryId: string, itemId: string) => void;
   onDueDateChange: (
     categoryId: string,
@@ -32,17 +33,21 @@ interface SortableCategoryGridProps {
   onMemoChange: (categoryId: string, itemId: string, value: string) => void;
   onMemoBlur: (categoryId: string, itemId: string, value: string) => void;
   onReorder: (newOrder: string[]) => void;
+  onToggleCollapse: (categoryId: string) => void;
 }
 
 /** 정렬 가능한 카테고리 카드 래퍼 */
 function SortableCard({
   category,
+  collapsed,
   onToggle,
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
-}: Omit<SortableCategoryGridProps, "categories" | "onReorder"> & {
+  onToggleCollapse,
+}: Omit<SortableCategoryGridProps, "categories" | "onReorder" | "collapsedCategories"> & {
   category: ChecklistCategory;
+  collapsed: boolean;
 }) {
   const {
     attributes,
@@ -63,10 +68,12 @@ function SortableCard({
     <div ref={setNodeRef} style={style}>
       <CategoryCard
         category={category}
+        collapsed={collapsed}
         onToggle={onToggle}
         onDueDateChange={onDueDateChange}
         onMemoChange={onMemoChange}
         onMemoBlur={onMemoBlur}
+        onToggleCollapse={onToggleCollapse}
         dragHandle={
           <button
             type="button"
@@ -86,11 +93,13 @@ function SortableCard({
 /** DnD 컨텍스트를 포함하는 카테고리 그리드 */
 export function SortableCategoryGrid({
   categories,
+  collapsedCategories,
   onToggle,
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
   onReorder,
+  onToggleCollapse,
 }: SortableCategoryGridProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -127,10 +136,12 @@ export function SortableCategoryGrid({
             <SortableCard
               key={category.id}
               category={category}
+              collapsed={collapsedCategories.has(category.id)}
               onToggle={onToggle}
               onDueDateChange={onDueDateChange}
               onMemoChange={onMemoChange}
               onMemoBlur={onMemoBlur}
+              onToggleCollapse={onToggleCollapse}
             />
           ))}
         </div>

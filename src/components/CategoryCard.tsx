@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { getDueDayMeta } from "@/lib/checklist-dates";
-import { StickyNote } from "lucide-react";
+import { ChevronDown, StickyNote } from "lucide-react";
 
 interface CategoryCardProps {
   category: ChecklistCategory;
@@ -20,6 +20,8 @@ interface CategoryCardProps {
   onMemoChange: (categoryId: string, itemId: string, value: string) => void;
   onMemoBlur: (categoryId: string, itemId: string, value: string) => void;
   dragHandle?: React.ReactNode;
+  collapsed?: boolean;
+  onToggleCollapse?: (categoryId: string) => void;
 }
 
 /** 카테고리별 체크리스트 카드 컴포넌트 */
@@ -30,6 +32,8 @@ export function CategoryCard({
   onMemoChange,
   onMemoBlur,
   dragHandle,
+  collapsed = false,
+  onToggleCollapse,
 }: CategoryCardProps) {
   const [openMemos, setOpenMemos] = useState<Set<string>>(
     () => new Set(category.items.filter((i) => i.memo).map((i) => i.id))
@@ -46,22 +50,34 @@ export function CategoryCard({
           : "hover:shadow-md"
       }`}
     >
-      <CardHeader className="pb-3">
+      <CardHeader
+        className="pb-3 cursor-pointer select-none"
+        onClick={() => onToggleCollapse?.(category.id)}
+      >
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-base sm:text-lg flex items-center gap-2 min-w-0">
-            {dragHandle}
+            {dragHandle && (
+              <span onClick={(e) => e.stopPropagation()}>{dragHandle}</span>
+            )}
             <span className="text-xl shrink-0">{category.emoji}</span>
             <span className="truncate">{category.title}</span>
           </CardTitle>
-          <Badge
-            variant={allDone ? "default" : "outline"}
-            className="text-xs shrink-0"
-          >
-            {checked}/{total}
-          </Badge>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Badge
+              variant={allDone ? "default" : "outline"}
+              className="text-xs"
+            >
+              {checked}/{total}
+            </Badge>
+            <ChevronDown
+              className={`size-4 text-muted-foreground transition-transform duration-200 ${
+                collapsed ? "-rotate-90" : ""
+              }`}
+            />
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      {!collapsed && <CardContent className="space-y-3">
         {category.items.map((item) => {
           const checkId = `check-${category.id}-${item.id}`;
           const dueInputId = `due-${category.id}-${item.id}`;
@@ -174,7 +190,7 @@ export function CategoryCard({
             </div>
           );
         })}
-      </CardContent>
+      </CardContent>}
     </Card>
   );
 }
