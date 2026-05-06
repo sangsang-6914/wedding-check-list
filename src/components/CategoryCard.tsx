@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { getDueDayMeta } from "@/lib/checklist-dates";
-import { ChevronDown, StickyNote } from "lucide-react";
+import { ChevronDown, Plus, StickyNote, X } from "lucide-react";
 
 interface CategoryCardProps {
   category: ChecklistCategory;
@@ -19,6 +20,8 @@ interface CategoryCardProps {
   ) => void;
   onMemoChange: (categoryId: string, itemId: string, value: string) => void;
   onMemoBlur: (categoryId: string, itemId: string, value: string) => void;
+  onAddItem?: (categoryId: string, label: string) => Promise<void>;
+  onDeleteItem?: (categoryId: string, itemId: string) => void;
   dragHandle?: React.ReactNode;
   collapsed?: boolean;
   onToggleCollapse?: (categoryId: string) => void;
@@ -31,6 +34,8 @@ export function CategoryCard({
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
+  onAddItem,
+  onDeleteItem,
   dragHandle,
   collapsed = false,
   onToggleCollapse,
@@ -38,9 +43,11 @@ export function CategoryCard({
   const [openMemos, setOpenMemos] = useState<Set<string>>(
     () => new Set(category.items.filter((i) => i.memo).map((i) => i.id))
   );
+  const [newItemLabel, setNewItemLabel] = useState("");
   const checked = category.items.filter((i) => i.checked).length;
   const total = category.items.length;
   const allDone = checked === total;
+  const percent = total === 0 ? 0 : Math.round((checked / total) * 100);
 
   return (
     <Card
@@ -76,6 +83,7 @@ export function CategoryCard({
             />
           </div>
         </div>
+        <Progress value={percent} className="mt-2" />
       </CardHeader>
       {!collapsed && <CardContent className="space-y-3">
         {category.items.map((item) => {
@@ -117,6 +125,16 @@ export function CategoryCard({
                   >
                     {item.label}
                   </label>
+                  {item.isCustom && onDeleteItem && (
+                    <button
+                      type="button"
+                      onClick={() => onDeleteItem(category.id, item.id)}
+                      aria-label="항목 삭제"
+                      className="inline-flex size-5 shrink-0 items-center justify-center rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2 pl-7 sm:shrink-0 sm:justify-end sm:pl-0">
                   <button
@@ -190,6 +208,33 @@ export function CategoryCard({
             </div>
           );
         })}
+        {onAddItem && (
+          <form
+            className="flex items-center gap-2 pt-2 border-t border-border/60"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const trimmed = newItemLabel.trim();
+              if (!trimmed) return;
+              await onAddItem(category.id, trimmed);
+              setNewItemLabel("");
+            }}
+          >
+            <input
+              type="text"
+              placeholder="항목 추가..."
+              value={newItemLabel}
+              onChange={(e) => setNewItemLabel(e.target.value)}
+              className="border-input bg-background text-foreground placeholder:text-muted-foreground h-8 flex-1 rounded-md border px-2.5 text-xs shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            />
+            <button
+              type="submit"
+              disabled={!newItemLabel.trim()}
+              className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-input text-muted-foreground hover:text-primary hover:border-primary disabled:opacity-40 transition-colors"
+            >
+              <Plus className="size-4" />
+            </button>
+          </form>
+        )}
       </CardContent>}
     </Card>
   );
