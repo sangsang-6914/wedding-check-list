@@ -24,10 +24,16 @@ async function getUserId(): Promise<string> {
 export async function getChecklist(): Promise<ChecklistCategory[]> {
   const userId = await getUserId();
 
-  const rows = await prisma.checklistItem.findMany({
-    where: { userId },
-    select: { itemId: true, checked: true, dueDate: true, memo: true },
-  });
+  const [rows, customItems] = await Promise.all([
+    prisma.checklistItem.findMany({
+      where: { userId },
+      select: { itemId: true, checked: true, dueDate: true, memo: true },
+    }),
+    prisma.customItem.findMany({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   const stateMap = new Map(
     rows.map((row) => [
@@ -40,9 +46,15 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
     ])
   );
 
-  return DEFAULT_CHECKLIST.map((category) => ({
-    ...category,
-    items: category.items.map((item) => {
+  const customByCategory = new Map<string, typeof customItems>();
+  for (const ci of customItems) {
+    const arr = customByCategory.get(ci.categoryId) ?? [];
+    arr.push(ci);
+    customByCategory.set(ci.categoryId, arr);
+  }
+
+  return DEFAULT_CHECKLIST.map((category) => {
+    const defaultItems = category.items.map((item) => {
       const saved = stateMap.get(item.id);
       return {
         ...item,
@@ -50,8 +62,22 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
         dueDate: saved?.dueDate ?? null,
         memo: saved?.memo ?? "",
       };
-    }),
-  }));
+    });
+
+    const customs = (customByCategory.get(category.id) ?? []).map((ci) => {
+      const saved = stateMap.get(ci.id);
+      return {
+        id: ci.id,
+        label: ci.label,
+        checked: saved?.checked ?? false,
+        dueDate: saved?.dueDate ?? null,
+        memo: saved?.memo ?? "",
+        isCustom: true as const,
+      };
+    });
+
+    return { ...category, items: [...defaultItems, ...customs] };
+  });
 }
 
 /** 체크리스트 항목의 체크 상태를 토글 */
@@ -122,6 +148,32 @@ export async function setChecklistItemMemo(
   return { memo: result.memo ?? "" };
 }
 
+/** 사용자 커스텀 항목 추가 */
+export async function addCustomItem(
+  categoryId: string,
+  label: string
+): Promise<{ id: string; label: string }> {
+  const userId = await getUserId();
+  const trimmed = label.trim();
+  if (!trimmed) throw new Error("항목 이름이 비어 있습니다");
+
+  const item = await prisma.customItem.create({
+    data: { userId, categoryId, label: trimmed },
+  });
+
+  return { id: item.id, label: item.label };
+}
+
+/** 사용자 커스텀 항목 삭제 */
+export async function deleteCustomItem(itemId: string): Promise<void> {
+  const userId = await getUserId();
+
+  await Promise.all([
+    prisma.customItem.deleteMany({ where: { id: itemId, userId } }),
+    prisma.checklistItem.deleteMany({ where: { itemId, userId } }),
+  ]);
+}
+
 /** 유저의 카테고리 순서 조회 (빈 배열이면 기본 순서) */
 export async function getCategoryOrder(): Promise<string[]> {
   const userId = await getUserId();
@@ -145,8 +197,11 @@ export async function saveCategoryOrder(order: string[]): Promise<void> {
   });
 }
 
-/** 유저의 체크리스트를 전체 초기화 */
+/** 유저의 체크리스트를 전체 초기화 (커스텀 항목 포함) */
 export async function resetChecklist(): Promise<void> {
   const userId = await getUserId();
-  await prisma.checklistItem.deleteMany({ where: { userId } });
+  await Promise.all([
+    prisma.checklistItem.deleteMany({ where: { userId } }),
+    prisma.customItem.deleteMany({ where: { userId } }),
+  ]);
 }

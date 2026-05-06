@@ -6,6 +6,8 @@ export interface ChecklistItem {
   dueDate: string | null;
   /** 업체명·가격·연락처 등 자유 메모 */
   memo: string;
+  /** 사용자가 직접 추가한 항목 여부 */
+  isCustom?: boolean;
 }
 
 export interface ChecklistCategory {

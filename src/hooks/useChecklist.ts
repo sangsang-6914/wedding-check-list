@@ -9,6 +9,8 @@ import {
   setChecklistItemDueDate,
   setChecklistItemMemo,
   saveCategoryOrder,
+  addCustomItem,
+  deleteCustomItem,
 } from "@/actions/checklist";
 
 export type ChecklistSortMode = "default" | "dueSoon";
@@ -220,6 +222,47 @@ export function useChecklist(
     []
   );
 
+  const handleAddItem = useCallback(
+    async (categoryId: string, label: string) => {
+      const { id } = await addCustomItem(categoryId, label);
+      setBaseCategories((prev) =>
+        prev.map((cat) =>
+          cat.id !== categoryId
+            ? cat
+            : {
+                ...cat,
+                items: [
+                  ...cat.items,
+                  {
+                    id,
+                    label,
+                    checked: false,
+                    dueDate: null,
+                    memo: "",
+                    isCustom: true,
+                  },
+                ],
+              }
+        )
+      );
+    },
+    []
+  );
+
+  const handleDeleteItem = useCallback(
+    (categoryId: string, itemId: string) => {
+      setBaseCategories((prev) =>
+        prev.map((cat) =>
+          cat.id !== categoryId
+            ? cat
+            : { ...cat, items: cat.items.filter((i) => i.id !== itemId) }
+        )
+      );
+      void deleteCustomItem(itemId);
+    },
+    []
+  );
+
   const handleReorder = useCallback((newOrder: string[]) => {
     setBaseCategories((prev) => applyCategoryOrder(prev, newOrder));
     void saveCategoryOrder(newOrder);
@@ -229,12 +272,14 @@ export function useChecklist(
     setBaseCategories((prev) =>
       prev.map((cat) => ({
         ...cat,
-        items: cat.items.map((item) => ({
-          ...item,
-          checked: false,
-          dueDate: null,
-          memo: "",
-        })),
+        items: cat.items
+          .filter((item) => !item.isCustom)
+          .map((item) => ({
+            ...item,
+            checked: false,
+            dueDate: null,
+            memo: "",
+          })),
       }))
     );
 
@@ -265,6 +310,8 @@ export function useChecklist(
     handleDueDateChange,
     handleMemoChange,
     handleMemoBlur,
+    handleAddItem,
+    handleDeleteItem,
     handleReorder,
     handleReset,
     totalItems,

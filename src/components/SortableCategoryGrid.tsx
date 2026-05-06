@@ -32,6 +32,8 @@ interface SortableCategoryGridProps {
   ) => void;
   onMemoChange: (categoryId: string, itemId: string, value: string) => void;
   onMemoBlur: (categoryId: string, itemId: string, value: string) => void;
+  onAddItem: (categoryId: string, label: string) => Promise<void>;
+  onDeleteItem: (categoryId: string, itemId: string) => void;
   onReorder: (newOrder: string[]) => void;
   onToggleCollapse: (categoryId: string) => void;
 }
@@ -44,6 +46,8 @@ function SortableCard({
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
+  onAddItem,
+  onDeleteItem,
   onToggleCollapse,
 }: Omit<SortableCategoryGridProps, "categories" | "onReorder" | "collapsedCategories"> & {
   category: ChecklistCategory;
@@ -73,6 +77,8 @@ function SortableCard({
         onDueDateChange={onDueDateChange}
         onMemoChange={onMemoChange}
         onMemoBlur={onMemoBlur}
+        onAddItem={onAddItem}
+        onDeleteItem={onDeleteItem}
         onToggleCollapse={onToggleCollapse}
         dragHandle={
           <button
@@ -98,6 +104,8 @@ export function SortableCategoryGrid({
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
+  onAddItem,
+  onDeleteItem,
   onReorder,
   onToggleCollapse,
 }: SortableCategoryGridProps) {
@@ -141,6 +149,8 @@ export function SortableCategoryGrid({
               onDueDateChange={onDueDateChange}
               onMemoChange={onMemoChange}
               onMemoBlur={onMemoBlur}
+              onAddItem={onAddItem}
+              onDeleteItem={onDeleteItem}
               onToggleCollapse={onToggleCollapse}
             />
           ))}

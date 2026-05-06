@@ -37,6 +37,8 @@ export function WeddingChecklist({
     handleDueDateChange,
     handleMemoChange,
     handleMemoBlur,
+    handleAddItem,
+    handleDeleteItem,
     handleReorder,
     handleReset,
     totalItems,
@@ -172,6 +174,8 @@ export function WeddingChecklist({
           onDueDateChange={handleDueDateChange}
           onMemoChange={handleMemoChange}
           onMemoBlur={handleMemoBlur}
+          onAddItem={handleAddItem}
+          onDeleteItem={handleDeleteItem}
           onReorder={handleReorder}
           onToggleCollapse={handleToggleCollapse}
         />
