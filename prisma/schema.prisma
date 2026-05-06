@@ -18,6 +18,17 @@ model UserPreference {
   @@map("user_preferences")
 }
 
+model CustomItem {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  categoryId String   @map("category_id")
+  label      String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([userId, categoryId])
+  @@map("custom_items")
+}
+
 model ChecklistItem {
   id         String    @id @default(cuid())
   userId     String    @map("user_id")
