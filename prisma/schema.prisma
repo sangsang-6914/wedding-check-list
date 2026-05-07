@@ -44,3 +44,44 @@ model ChecklistItem {
   @@index([userId])
   @@map("checklist_items")
 }
+
+model BudgetItem {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  categoryId String   @map("category_id")
+  budget     Int      @default(0)
+  spent      Int      @default(0)
+  note       String?  @default("")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, categoryId])
+  @@index([userId])
+  @@map("budget_items")
+}
+
+model SharedChecklist {
+  id            String   @id @default(cuid())
+  ownerId       String   @map("owner_id")
+  partnerEmail  String   @map("partner_email")
+  partnerUserId String?  @map("partner_user_id")
+  status        String   @default("pending")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@unique([ownerId, partnerEmail])
+  @@index([partnerEmail])
+  @@index([partnerUserId])
+  @@map("shared_checklists")
+}
+
+model NotificationSetting {
+  id         String   @id @default(cuid())
+  userId     String   @unique @map("user_id")
+  enabled    Boolean  @default(true)
+  daysBefore Int      @default(3) @map("days_before")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_settings")
+}
