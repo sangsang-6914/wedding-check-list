@@ -63,6 +63,7 @@
 - **이메일 회원가입 / 로그인** — Supabase Auth 기반 인증
 - **사용자별 데이터 저장** — Prisma + Supabase PostgreSQL로 유저별 체크리스트 관리
 - **9개 카테고리, 42개 체크 항목** — 예식장, 드레스/예복, 스튜디오, 메이크업, 청첩장, 신혼여행, 예물/예단, 신혼집, 예식 당일
+- **웨딩 D-Day 카운트다운** — 결혼식 날짜를 설정하면 D-Day 카운트다운이 메인 상단에 표시, 남은 기간과 준비 진행률에 따른 응원 메시지
 - **실시간 진행률 추적** — 프로그레스바 + 퍼센트 + 완료 카운트 + 구간별 응원 메시지
 - **Optimistic UI** — 체크·메모·마감일 변경 시 즉시 반영, 서버와 비동기 동기화
 - **항목별 마감일 설정** — 날짜 선택으로 마감일 지정, D-day 배지(지남·오늘·D-N) 자동 표시
@@ -96,7 +97,11 @@
 src/
 ├── actions/
 │   ├── auth.ts                        # 로그인/회원가입/로그아웃 Server Actions
-│   └── checklist.ts                   # 체크리스트 CRUD + 카테고리 순서 Server Actions
+│   ├── budget.ts                      # 예산 관리 Server Actions
+│   ├── checklist.ts                   # 체크리스트 CRUD + 카테고리 순서 Server Actions
+│   ├── notification.ts                # 마감일 알림 Server Actions
+│   ├── share.ts                       # 파트너 공유 Server Actions
+│   └── wedding-date.ts               # 웨딩 D-Day 날짜 Server Actions
 ├── app/
 │   ├── (auth)/
 │   │   ├── login/page.tsx
@@ -107,8 +112,12 @@ src/
 ├── components/
 │   ├── ui/                            # shadcn/ui 컴포넌트
 │   ├── AuthForm.tsx                   # 로그인/회원가입 공통 폼
+│   ├── BudgetPanel.tsx                # 예산 관리 패널
 │   ├── CategoryCard.tsx               # 카테고리 카드 (메모·마감일·D-day 배지)
+│   ├── DdayCounter.tsx                # 웨딩 D-Day 카운트다운 위젯
+│   ├── NotificationBanner.tsx         # 마감일 알림 배너
 │   ├── ProgressHeader.tsx             # 진행률 헤더
+│   ├── SharePanel.tsx                 # 파트너 공유 패널
 │   ├── SortableCategoryGrid.tsx       # 드래그 앤 드롭 카테고리 그리드
 │   ├── UserNav.tsx                    # 유저 정보 + 로그아웃
 │   ├── WeddingChecklist.tsx           # 메인 체크리스트 (검색·필터·정렬·내보내기)
