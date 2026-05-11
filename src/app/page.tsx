@@ -12,6 +12,7 @@ import { BudgetPanel } from "@/components/BudgetPanel";
 import { SharePanel } from "@/components/SharePanel";
 import { NotificationBanner } from "@/components/NotificationBanner";
 import { DdayCounter } from "@/components/DdayCounter";
+import { StatsPanel } from "@/components/StatsPanel";
 import { UserNav } from "@/components/UserNav";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -58,6 +59,7 @@ export default async function Home() {
         <div className="space-y-4 mb-8">
           <DdayCounter initialDate={weddingDate} progress={progress} />
           <NotificationBanner alerts={alerts} initialSetting={notifSetting} />
+          <StatsPanel categories={categories} />
           <div className="grid gap-4 sm:grid-cols-2">
             <BudgetPanel categories={categories} initialBudgets={budgets} />
             <SharePanel initialShares={shares} />
