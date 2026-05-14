@@ -37,6 +37,7 @@ export function WeddingChecklist({
     handleDueDateChange,
     handleMemoChange,
     handleMemoBlur,
+    handlePriorityChange,
     handleAddItem,
     handleDeleteItem,
     handleReorder,
@@ -121,6 +122,7 @@ export function WeddingChecklist({
               <option value="done">완료</option>
               <option value="undone">미완료</option>
               <option value="hasDueDate">마감일 있음</option>
+              <option value="highPriority">우선순위 높음</option>
             </select>
           </div>
 
@@ -174,6 +176,7 @@ export function WeddingChecklist({
           onDueDateChange={handleDueDateChange}
           onMemoChange={handleMemoChange}
           onMemoBlur={handleMemoBlur}
+          onPriorityChange={handlePriorityChange}
           onAddItem={handleAddItem}
           onDeleteItem={handleDeleteItem}
           onReorder={handleReorder}

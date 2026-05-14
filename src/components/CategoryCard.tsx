@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ChecklistCategory } from "@/lib/types";
+import { ChecklistCategory, Priority } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { getDueDayMeta } from "@/lib/checklist-dates";
-import { ChevronDown, Plus, StickyNote, X } from "lucide-react";
+import { ChevronDown, Plus, StickyNote, X, Flag } from "lucide-react";
 
 interface CategoryCardProps {
   category: ChecklistCategory;
@@ -20,6 +20,7 @@ interface CategoryCardProps {
   ) => void;
   onMemoChange: (categoryId: string, itemId: string, value: string) => void;
   onMemoBlur: (categoryId: string, itemId: string, value: string) => void;
+  onPriorityChange?: (categoryId: string, itemId: string, value: Priority) => void;
   onAddItem?: (categoryId: string, label: string) => Promise<void>;
   onDeleteItem?: (categoryId: string, itemId: string) => void;
   dragHandle?: React.ReactNode;
@@ -34,6 +35,7 @@ export function CategoryCard({
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
+  onPriorityChange,
   onAddItem,
   onDeleteItem,
   dragHandle,
@@ -125,6 +127,14 @@ export function CategoryCard({
                   >
                     {item.label}
                   </label>
+                  {item.priority !== "none" && (
+                    <Badge
+                      variant={item.priority === "high" ? "destructive" : "secondary"}
+                      className="text-[10px] shrink-0 px-1.5 py-0"
+                    >
+                      {item.priority === "high" ? "높음" : item.priority === "medium" ? "보통" : "낮음"}
+                    </Badge>
+                  )}
                   {item.isCustom && onDeleteItem && (
                     <button
                       type="button"
@@ -137,6 +147,29 @@ export function CategoryCard({
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2 pl-7 sm:shrink-0 sm:justify-end sm:pl-0">
+                  {onPriorityChange && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const cycle: Priority[] = ["none", "high", "medium", "low"];
+                        const idx = cycle.indexOf(item.priority);
+                        const next = cycle[(idx + 1) % cycle.length];
+                        onPriorityChange(category.id, item.id, next);
+                      }}
+                      aria-label="우선순위 변경"
+                      className={`inline-flex size-7 items-center justify-center rounded-md transition-colors ${
+                        item.priority === "high"
+                          ? "text-red-500 hover:bg-red-500/10"
+                          : item.priority === "medium"
+                            ? "text-amber-500 hover:bg-amber-500/10"
+                            : item.priority === "low"
+                              ? "text-blue-400 hover:bg-blue-400/10"
+                              : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <Flag className="size-3.5" />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={handleToggleMemo}

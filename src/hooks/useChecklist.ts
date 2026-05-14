@@ -3,18 +3,20 @@
 import { useCallback, useMemo, useState } from "react";
 import { ChecklistCategory } from "@/lib/types";
 import { compareDueDatesAsc } from "@/lib/checklist-dates";
+import { Priority } from "@/lib/types";
 import {
   toggleChecklistItem,
   resetChecklist,
   setChecklistItemDueDate,
   setChecklistItemMemo,
+  setChecklistItemPriority,
   saveCategoryOrder,
   addCustomItem,
   deleteCustomItem,
 } from "@/actions/checklist";
 
 export type ChecklistSortMode = "default" | "dueSoon";
-export type ChecklistFilterMode = "all" | "done" | "undone" | "hasDueDate";
+export type ChecklistFilterMode = "all" | "done" | "undone" | "hasDueDate" | "highPriority";
 
 /** 카테고리 목록에서 특정 아이템의 checked 값을 변경하는 헬퍼 */
 function updateItemInCategories(
@@ -73,6 +75,25 @@ function updateItemDueDate(
   );
 }
 
+/** 특정 항목의 우선순위만 갱신 */
+function updateItemPriority(
+  categories: ChecklistCategory[],
+  categoryId: string,
+  itemId: string,
+  priority: Priority
+): ChecklistCategory[] {
+  return categories.map((cat) =>
+    cat.id !== categoryId
+      ? cat
+      : {
+          ...cat,
+          items: cat.items.map((item) =>
+            item.id !== itemId ? item : { ...item, priority }
+          ),
+        }
+  );
+}
+
 /** 카테고리 내 항목만 정렬(그리드·카테고리 순서는 유지) */
 function sortItemsInCategory(
   cat: ChecklistCategory,
@@ -104,6 +125,7 @@ function filterCategory(
     if (filter === "done" && !item.checked) return false;
     if (filter === "undone" && item.checked) return false;
     if (filter === "hasDueDate" && !item.dueDate) return false;
+    if (filter === "highPriority" && item.priority !== "high") return false;
     return true;
   });
   if (filtered.length === 0) return null;
@@ -222,6 +244,16 @@ export function useChecklist(
     []
   );
 
+  const handlePriorityChange = useCallback(
+    (categoryId: string, itemId: string, value: Priority) => {
+      setBaseCategories((prev) =>
+        updateItemPriority(prev, categoryId, itemId, value)
+      );
+      void setChecklistItemPriority(categoryId, itemId, value);
+    },
+    []
+  );
+
   const handleAddItem = useCallback(
     async (categoryId: string, label: string) => {
       const { id } = await addCustomItem(categoryId, label);
@@ -239,6 +271,7 @@ export function useChecklist(
                     checked: false,
                     dueDate: null,
                     memo: "",
+                    priority: "none" as Priority,
                     isCustom: true,
                   },
                 ],
@@ -279,6 +312,7 @@ export function useChecklist(
             checked: false,
             dueDate: null,
             memo: "",
+            priority: "none" as Priority,
           })),
       }))
     );
@@ -310,6 +344,7 @@ export function useChecklist(
     handleDueDateChange,
     handleMemoChange,
     handleMemoBlur,
+    handlePriorityChange,
     handleAddItem,
     handleDeleteItem,
     handleReorder,

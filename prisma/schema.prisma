@@ -38,6 +38,7 @@ model ChecklistItem {
   checked    Boolean   @default(false)
   dueDate    DateTime? @map("due_date") @db.Date
   memo       String?   @default("") @map("memo")
+  priority   String    @default("none") @map("priority")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
 

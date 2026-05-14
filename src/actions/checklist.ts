@@ -3,7 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_CHECKLIST } from "@/lib/data";
-import { ChecklistCategory } from "@/lib/types";
+import { ChecklistCategory, Priority } from "@/lib/types";
 import {
   isValidIsoDateString,
   isoDateStringToPrismaDate,
@@ -27,7 +27,7 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
   const [rows, customItems] = await Promise.all([
     prisma.checklistItem.findMany({
       where: { userId },
-      select: { itemId: true, checked: true, dueDate: true, memo: true },
+      select: { itemId: true, checked: true, dueDate: true, memo: true, priority: true },
     }),
     prisma.customItem.findMany({
       where: { userId },
@@ -42,6 +42,7 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
         checked: row.checked,
         dueDate: row.dueDate ? prismaDateToIsoDate(row.dueDate) : null,
         memo: row.memo ?? "",
+        priority: (row.priority ?? "none") as Priority,
       },
     ])
   );
@@ -61,6 +62,7 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
         checked: saved?.checked ?? false,
         dueDate: saved?.dueDate ?? null,
         memo: saved?.memo ?? "",
+        priority: saved?.priority ?? ("none" as Priority),
       };
     });
 
@@ -72,6 +74,7 @@ export async function getChecklist(): Promise<ChecklistCategory[]> {
         checked: saved?.checked ?? false,
         dueDate: saved?.dueDate ?? null,
         memo: saved?.memo ?? "",
+        priority: saved?.priority ?? ("none" as Priority),
         isCustom: true as const,
       };
     });
@@ -146,6 +149,23 @@ export async function setChecklistItemMemo(
   });
 
   return { memo: result.memo ?? "" };
+}
+
+/** 항목 우선순위 변경 */
+export async function setChecklistItemPriority(
+  categoryId: string,
+  itemId: string,
+  priority: Priority
+): Promise<{ priority: Priority }> {
+  const userId = await getUserId();
+
+  const result = await prisma.checklistItem.upsert({
+    where: { userId_itemId: { userId, itemId } },
+    update: { priority, categoryId },
+    create: { userId, categoryId, itemId, checked: false, priority },
+  });
+
+  return { priority: (result.priority ?? "none") as Priority };
 }
 
 /** 사용자 커스텀 항목 추가 */

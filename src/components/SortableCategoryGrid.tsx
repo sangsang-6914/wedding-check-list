@@ -17,7 +17,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ChecklistCategory } from "@/lib/types";
+import { ChecklistCategory, Priority } from "@/lib/types";
 import { CategoryCard } from "./CategoryCard";
 import { GripVertical } from "lucide-react";
 
@@ -32,6 +32,7 @@ interface SortableCategoryGridProps {
   ) => void;
   onMemoChange: (categoryId: string, itemId: string, value: string) => void;
   onMemoBlur: (categoryId: string, itemId: string, value: string) => void;
+  onPriorityChange?: (categoryId: string, itemId: string, value: Priority) => void;
   onAddItem: (categoryId: string, label: string) => Promise<void>;
   onDeleteItem: (categoryId: string, itemId: string) => void;
   onReorder: (newOrder: string[]) => void;
@@ -46,6 +47,7 @@ function SortableCard({
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
+  onPriorityChange,
   onAddItem,
   onDeleteItem,
   onToggleCollapse,
@@ -77,6 +79,7 @@ function SortableCard({
         onDueDateChange={onDueDateChange}
         onMemoChange={onMemoChange}
         onMemoBlur={onMemoBlur}
+        onPriorityChange={onPriorityChange}
         onAddItem={onAddItem}
         onDeleteItem={onDeleteItem}
         onToggleCollapse={onToggleCollapse}
@@ -104,6 +107,7 @@ export function SortableCategoryGrid({
   onDueDateChange,
   onMemoChange,
   onMemoBlur,
+  onPriorityChange,
   onAddItem,
   onDeleteItem,
   onReorder,
@@ -149,6 +153,7 @@ export function SortableCategoryGrid({
               onDueDateChange={onDueDateChange}
               onMemoChange={onMemoChange}
               onMemoBlur={onMemoBlur}
+              onPriorityChange={onPriorityChange}
               onAddItem={onAddItem}
               onDeleteItem={onDeleteItem}
               onToggleCollapse={onToggleCollapse}
