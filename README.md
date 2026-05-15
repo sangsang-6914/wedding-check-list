@@ -80,6 +80,7 @@
 - **카테고리별 완료 통계 대시보드** — 카테고리별 진행률을 바 차트로 시각화, 가장 잘 진행 중인/더 신경 쓸 카테고리 요약 표시
 - **준비 타임라인** — 결혼식 날짜 기준 구간별(6개월 전~당일) 권장 준비 항목을 시각적 타임라인으로 표시, 현재 구간 하이라이트
 - **우선순위 태그** — 각 항목에 높음/보통/낮음 우선순위를 깃발 아이콘으로 설정, 우선순위 배지 표시 및 '우선순위 높음' 필터 지원
+- **준비 일지** — 날짜별로 결혼 준비 과정의 메모·느낌점·의사결정을 기록하고 타임라인 형태로 되돌아볼 수 있는 일지 (CRUD 지원)
 - **반응형 디자인** — 모바일 / 태블릿 / 데스크탑 대응 (1 / 2 / 3 컬럼 그리드)
 - **초기화 기능** — 전체 체크리스트 리셋 (체크·마감일·메모 일괄 삭제)
 
@@ -102,6 +103,7 @@ src/
 │   ├── auth.ts                        # 로그인/회원가입/로그아웃 Server Actions
 │   ├── budget.ts                      # 예산 관리 Server Actions
 │   ├── checklist.ts                   # 체크리스트 CRUD + 카테고리 순서 Server Actions
+│   ├── journal.ts                     # 준비 일지 CRUD Server Actions
 │   ├── notification.ts                # 마감일 알림 Server Actions
 │   ├── share.ts                       # 파트너 공유 Server Actions
 │   └── wedding-date.ts               # 웨딩 D-Day 날짜 Server Actions
@@ -118,6 +120,7 @@ src/
 │   ├── BudgetPanel.tsx                # 예산 관리 패널
 │   ├── CategoryCard.tsx               # 카테고리 카드 (메모·마감일·D-day 배지)
 │   ├── DdayCounter.tsx                # 웨딩 D-Day 카운트다운 위젯
+│   ├── JournalPanel.tsx               # 준비 일지 패널
 │   ├── NotificationBanner.tsx         # 마감일 알림 배너
 │   ├── ProgressHeader.tsx             # 진행률 헤더
 │   ├── SharePanel.tsx                 # 파트너 공유 패널
