@@ -14,6 +14,8 @@ import { NotificationBanner } from "@/components/NotificationBanner";
 import { DdayCounter } from "@/components/DdayCounter";
 import { StatsPanel } from "@/components/StatsPanel";
 import { TimelinePanel } from "@/components/TimelinePanel";
+import { JournalPanel } from "@/components/JournalPanel";
+import { getJournalEntries } from "@/actions/journal";
 import { UserNav } from "@/components/UserNav";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -31,6 +33,7 @@ export default async function Home() {
     notifSetting,
     alerts,
     weddingDate,
+    journalEntries,
   ] = await Promise.all([
     getChecklist(),
     getCategoryOrder(),
@@ -39,6 +42,7 @@ export default async function Home() {
     getNotificationSetting(),
     getUpcomingDueDates(),
     getWeddingDate(),
+    getJournalEntries(),
   ]);
 
   const totalItems = categories.reduce((s, c) => s + c.items.length, 0);
@@ -62,6 +66,7 @@ export default async function Home() {
           <NotificationBanner alerts={alerts} initialSetting={notifSetting} />
           <StatsPanel categories={categories} />
           <TimelinePanel weddingDate={weddingDate} categories={categories} />
+          <JournalPanel initialEntries={journalEntries} />
           <div className="grid gap-4 sm:grid-cols-2">
             <BudgetPanel categories={categories} initialBudgets={budgets} />
             <SharePanel initialShares={shares} />

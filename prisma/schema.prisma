@@ -77,6 +77,18 @@ model SharedChecklist {
   @@map("shared_checklists")
 }
 
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  date      DateTime @map("date") @db.Date
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId, date])
+  @@map("journal_entries")
+}
+
 model NotificationSetting {
   id         String   @id @default(cuid())
   userId     String   @unique @map("user_id")
