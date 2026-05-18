@@ -16,6 +16,8 @@ import { StatsPanel } from "@/components/StatsPanel";
 import { TimelinePanel } from "@/components/TimelinePanel";
 import { JournalPanel } from "@/components/JournalPanel";
 import { getJournalEntries } from "@/actions/journal";
+import { getGuests } from "@/actions/guest";
+import { GuestPanel } from "@/components/GuestPanel";
 import { UserNav } from "@/components/UserNav";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -34,6 +36,7 @@ export default async function Home() {
     alerts,
     weddingDate,
     journalEntries,
+    guests,
   ] = await Promise.all([
     getChecklist(),
     getCategoryOrder(),
@@ -43,6 +46,7 @@ export default async function Home() {
     getUpcomingDueDates(),
     getWeddingDate(),
     getJournalEntries(),
+    getGuests(),
   ]);
 
   const totalItems = categories.reduce((s, c) => s + c.items.length, 0);
@@ -67,6 +71,7 @@ export default async function Home() {
           <StatsPanel categories={categories} />
           <TimelinePanel weddingDate={weddingDate} categories={categories} />
           <JournalPanel initialEntries={journalEntries} />
+          <GuestPanel initialGuests={guests} />
           <div className="grid gap-4 sm:grid-cols-2">
             <BudgetPanel categories={categories} initialBudgets={budgets} />
             <SharePanel initialShares={shares} />

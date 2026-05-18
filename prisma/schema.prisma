@@ -89,6 +89,23 @@ model JournalEntry {
   @@map("journal_entries")
 }
 
+model Guest {
+  id         String  @id @default(cuid())
+  userId     String  @map("user_id")
+  name       String
+  side       String  @default("groom") // "groom" | "bride"
+  relation   String  @default("")      // 친구, 직장, 가족 등
+  attending  String  @default("pending") // "pending" | "yes" | "no"
+  plusCount  Int     @default(0) @map("plus_count") // 동반 인원
+  needsMeal  Boolean @default(true) @map("needs_meal")
+  note       String? @default("")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("guests")
+}
+
 model NotificationSetting {
   id         String   @id @default(cuid())
   userId     String   @unique @map("user_id")
